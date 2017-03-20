@@ -1,0 +1,14 @@
+uuid: fc0137a9-bf3e-480b-be1d-7f875926e5a2
+name: 'd8 sandbox'
+mail: a@b.c
+slogan: ''
+page:
+  403: ''
+  404: ''
+  front: /node
+admin_compact_mode: false
+weight_select_max: 100
+langcode: en
+default_langcode: en
+_core:
+  default_config_hash: AyT9s8OUcclfALRE_imByOMgtZ19eOlqdF6zI3p7yqo
