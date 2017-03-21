@@ -28,28 +28,28 @@ function sandbox_validation_plugin_help($route_name, RouteMatchInterface $route_
 /**
  * Implements hook_entity_base_field_info().
  */
-//function sandbox_validation_plugin_entity_base_field_info_alter(EntityTypeInterface $entity_type) {
-//  $fields = [];
-//
-//  $fields['prep_time'] = BaseFieldDefinition::create('string')
-//    ->setLabel(t('Prep Time'))
-//    ->setDescription(t('How long does it take to prep food?'))
-//    ->setComputed(TRUE)
-//    ->setRequired(TRUE)
-//    ->setTranslatable(TRUE)
-//    ->setRevisionable(TRUE)
-//    ->setDefaultValue('')
-//    ->setDisplayOptions('view', array(
-//      'label' => 'above',
-//      'type' => 'string',
-//      'weight' => -4,
-//    ))
-//    ->setDisplayOptions('form', array(
-//      'type' => 'string_textfield',
-//      'weight' => -4,
-//    ))
-//    ->setDisplayConfigurable('form', TRUE)
-//    ->setDisplayConfigurable('view', TRUE);
-//
-//  return $fields;
-//}
+function sandbox_validation_plugin_entity_base_field_info(EntityTypeInterface $entity_type) {
+  $fields = [];
+
+  $fields['prep_time'] = BaseFieldDefinition::create('string')
+    ->setLabel(t('Prep Time'))
+    ->setDescription(t('How long does it take to prep food?'))
+    ->setComputed(TRUE)
+    ->setRequired(TRUE)
+    ->setTranslatable(TRUE)
+    ->setRevisionable(TRUE)
+    ->setDefaultValue('')
+    ->setDisplayOptions('view', array(
+      'label' => 'above',
+      'type' => 'string',
+      'weight' => -4,
+    ))
+    ->setDisplayOptions('form', array(
+      'type' => 'string_textfield',
+      'weight' => -4,
+    ))
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE);
+
+  return $fields;
+}
