@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * @file
+ * Contains sandbox_validation_plugin.module..
+ */
+
+use Drupal\Core\Entity\EntityTypeInterface;
+use Drupal\Core\Field\BaseFieldDefinition;
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function sandbox_validation_plugin_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the sandbox_validation_plugin module.
+    case 'help.page.sandbox_validation_plugin':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Sandbox for validation plugins') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_entity_base_field_info().
+ */
+//function sandbox_validation_plugin_entity_base_field_info_alter(EntityTypeInterface $entity_type) {
+//  $fields = [];
+//
+//  $fields['prep_time'] = BaseFieldDefinition::create('string')
+//    ->setLabel(t('Prep Time'))
+//    ->setDescription(t('How long does it take to prep food?'))
+//    ->setComputed(TRUE)
+//    ->setRequired(TRUE)
+//    ->setTranslatable(TRUE)
+//    ->setRevisionable(TRUE)
+//    ->setDefaultValue('')
+//    ->setDisplayOptions('view', array(
+//      'label' => 'above',
+//      'type' => 'string',
+//      'weight' => -4,
+//    ))
+//    ->setDisplayOptions('form', array(
+//      'type' => 'string_textfield',
+//      'weight' => -4,
+//    ))
+//    ->setDisplayConfigurable('form', TRUE)
+//    ->setDisplayConfigurable('view', TRUE);
+//
+//  return $fields;
+//}

@@ -1,0 +1,5 @@
+name: sandbox_validation_plugin
+type: module
+description: Sandbox for validation plugins
+core: 8.x
+package: Custom

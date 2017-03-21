@@ -61,9 +61,12 @@ class DateRangeFieldTest extends DateTestBase {
       $this->drupalGet('entity_test/add');
       $this->assertFieldByName("{$field_name}[0][value][date]", '', 'Start date element found.');
       $this->assertFieldByName("{$field_name}[0][end_value][date]", '', 'End date element found.');
-      $this->assertFieldByXPath('//*[@id="edit-' . $field_name . '-wrapper"]/h4[contains(@class, "js-form-required")]', TRUE, 'Required markup found');
+      $this->assertFieldByXPath('//*[@id="edit-' . $field_name . '-wrapper"]//label[contains(@class, "js-form-required")]', TRUE, 'Required markup found');
       $this->assertNoFieldByName("{$field_name}[0][value][time]", '', 'Start time element not found.');
       $this->assertNoFieldByName("{$field_name}[0][end_value][time]", '', 'End time element not found.');
+      $this->assertFieldByXPath('//fieldset[@id="edit-' . $field_name . '-0"]/legend//text()', $field_name, 'Fieldset and label found');
+      $this->assertFieldByXPath('//fieldset[@aria-describedby="edit-' . $field_name . '-0--description"]', NULL, 'ARIA described-by found');
+      $this->assertFieldByXPath('//div[@id="edit-' . $field_name . '-0--description"]', NULL, 'ARIA description found');
 
       // Build up dates in the UTC timezone.
       $value = '2012-12-31 00:00:00';
@@ -75,14 +78,14 @@ class DateRangeFieldTest extends DateTestBase {
       $date_format = DateFormat::load('html_date')->getPattern();
       $time_format = DateFormat::load('html_time')->getPattern();
 
-      $edit = array(
+      $edit = [
         "{$field_name}[0][value][date]" => $start_date->format($date_format),
         "{$field_name}[0][end_value][date]" => $end_date->format($date_format),
-      );
+      ];
       $this->drupalPostForm(NULL, $edit, t('Save'));
       preg_match('|entity_test/manage/(\d+)|', $this->url, $match);
       $id = $match[1];
-      $this->assertText(t('entity_test @id has been created.', array('@id' => $id)));
+      $this->assertText(t('entity_test @id has been created.', ['@id' => $id]));
       $this->assertRaw($start_date->format($date_format));
       $this->assertNoRaw($start_date->format($time_format));
       $this->assertRaw($end_date->format($date_format));
@@ -153,17 +156,27 @@ class DateRangeFieldTest extends DateTestBase {
         ->save();
       $expected = $start_date->format(DATETIME_DATE_STORAGE_FORMAT) . ' - ' . $end_date->format(DATETIME_DATE_STORAGE_FORMAT);
       $this->renderTestEntity($id);
-      $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', array('%expected' => $expected)));
+      $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', ['%expected' => $expected]));
 
       // Verify that the custom formatter works.
       $this->displayOptions['type'] = 'daterange_custom';
-      $this->displayOptions['settings'] = array('date_format' => 'm/d/Y') + $this->defaultSettings;
+      $this->displayOptions['settings'] = ['date_format' => 'm/d/Y'] + $this->defaultSettings;
       entity_get_display($this->field->getTargetEntityTypeId(), $this->field->getTargetBundle(), 'full')
         ->setComponent($field_name, $this->displayOptions)
         ->save();
       $expected = $start_date->format($this->displayOptions['settings']['date_format']) . ' - ' . $end_date->format($this->displayOptions['settings']['date_format']);
       $this->renderTestEntity($id);
-      $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+      $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
+
+      // Test that allowed markup in custom format is preserved and XSS is
+      // removed.
+      $this->displayOptions['settings']['date_format'] = '\\<\\s\\t\\r\\o\\n\\g\\>m/d/Y\\<\\/\\s\\t\\r\\o\\n\\g\\>\\<\\s\\c\\r\\i\\p\\t\\>\\a\\l\\e\\r\\t\\(\\S\\t\\r\\i\\n\\g\\.\\f\\r\\o\\m\\C\\h\\a\\r\\C\\o\\d\\e\\(\\8\\8\\,\\8\\3\\,\\8\\3\\)\\)\\<\\/\\s\\c\\r\\i\\p\\t\\>';
+      entity_get_display($this->field->getTargetEntityTypeId(), $this->field->getTargetBundle(), 'full')
+        ->setComponent($field_name, $this->displayOptions)
+        ->save();
+      $expected = '<strong>' . $start_date->format('m/d/Y') . '</strong>alert(String.fromCharCode(88,83,83)) - <strong>' . $end_date->format('m/d/Y') . '</strong>alert(String.fromCharCode(88,83,83))';
+      $this->renderTestEntity($id);
+      $this->assertRaw($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
 
       // Test formatters when start date and end date are the same
       $this->drupalGet('entity_test/add');
@@ -173,15 +186,15 @@ class DateRangeFieldTest extends DateTestBase {
       $date_format = DateFormat::load('html_date')->getPattern();
       $time_format = DateFormat::load('html_time')->getPattern();
 
-      $edit = array(
+      $edit = [
         "{$field_name}[0][value][date]" => $start_date->format($date_format),
         "{$field_name}[0][end_value][date]" => $start_date->format($date_format),
-      );
+      ];
 
       $this->drupalPostForm(NULL, $edit, t('Save'));
       preg_match('|entity_test/manage/(\d+)|', $this->url, $match);
       $id = $match[1];
-      $this->assertText(t('entity_test @id has been created.', array('@id' => $id)));
+      $this->assertText(t('entity_test @id has been created.', ['@id' => $id]));
 
       datetime_date_default_time($start_date);
 
@@ -220,17 +233,17 @@ class DateRangeFieldTest extends DateTestBase {
         ->save();
       $expected = $start_date->format(DATETIME_DATE_STORAGE_FORMAT);
       $this->renderTestEntity($id);
-      $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', array('%expected' => $expected)));
+      $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', ['%expected' => $expected]));
       $this->assertNoText(' THESEPARATOR ', 'Separator not found on page');
 
       $this->displayOptions['type'] = 'daterange_custom';
-      $this->displayOptions['settings'] = array('date_format' => 'm/d/Y') + $this->defaultSettings;
+      $this->displayOptions['settings'] = ['date_format' => 'm/d/Y'] + $this->defaultSettings;
       entity_get_display($this->field->getTargetEntityTypeId(), $this->field->getTargetBundle(), 'full')
         ->setComponent($field_name, $this->displayOptions)
         ->save();
       $expected = $start_date->format($this->displayOptions['settings']['date_format']);
       $this->renderTestEntity($id);
-      $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+      $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
       $this->assertNoText(' THESEPARATOR ', 'Separator not found on page');
     }
   }
@@ -251,6 +264,9 @@ class DateRangeFieldTest extends DateTestBase {
     $this->assertFieldByName("{$field_name}[0][value][time]", '', 'Start time element found.');
     $this->assertFieldByName("{$field_name}[0][end_value][date]", '', 'End date element found.');
     $this->assertFieldByName("{$field_name}[0][end_value][time]", '', 'End time element found.');
+    $this->assertFieldByXPath('//fieldset[@id="edit-' . $field_name . '-0"]/legend//text()', $field_name, 'Fieldset and label found');
+    $this->assertFieldByXPath('//fieldset[@aria-describedby="edit-' . $field_name . '-0--description"]', NULL, 'ARIA described-by found');
+    $this->assertFieldByXPath('//div[@id="edit-' . $field_name . '-0--description"]', NULL, 'ARIA description found');
 
     // Build up dates in the UTC timezone.
     $value = '2012-12-31 00:00:00';
@@ -266,16 +282,16 @@ class DateRangeFieldTest extends DateTestBase {
     $date_format = DateFormat::load('html_date')->getPattern();
     $time_format = DateFormat::load('html_time')->getPattern();
 
-    $edit = array(
+    $edit = [
       "{$field_name}[0][value][date]" => $start_date->format($date_format),
       "{$field_name}[0][value][time]" => $start_date->format($time_format),
       "{$field_name}[0][end_value][date]" => $end_date->format($date_format),
       "{$field_name}[0][end_value][time]" => $end_date->format($time_format),
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
     preg_match('|entity_test/manage/(\d+)|', $this->url, $match);
     $id = $match[1];
-    $this->assertText(t('entity_test @id has been created.', array('@id' => $id)));
+    $this->assertText(t('entity_test @id has been created.', ['@id' => $id]));
     $this->assertRaw($start_date->format($date_format));
     $this->assertRaw($start_date->format($time_format));
     $this->assertRaw($end_date->format($date_format));
@@ -312,7 +328,7 @@ class DateRangeFieldTest extends DateTestBase {
       ->save();
     $expected = $start_date->format(DATETIME_DATETIME_STORAGE_FORMAT) . ' - ' . $end_date->format(DATETIME_DATETIME_STORAGE_FORMAT);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', ['%expected' => $expected]));
 
     // Verify that the 'datetime_custom' formatter works.
     $this->displayOptions['type'] = 'daterange_custom';
@@ -322,7 +338,7 @@ class DateRangeFieldTest extends DateTestBase {
       ->save();
     $expected = $start_date->format($this->displayOptions['settings']['date_format']) . ' - ' . $end_date->format($this->displayOptions['settings']['date_format']);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
 
     // Verify that the 'timezone_override' setting works.
     $this->displayOptions['type'] = 'daterange_custom';
@@ -333,7 +349,7 @@ class DateRangeFieldTest extends DateTestBase {
     $expected = $start_date->format($this->displayOptions['settings']['date_format'], ['timezone' => 'America/New_York']);
     $expected .= ' - ' . $end_date->format($this->displayOptions['settings']['date_format'], ['timezone' => 'America/New_York']);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
 
     // Test formatters when start date and end date are the same
     $this->drupalGet('entity_test/add');
@@ -344,17 +360,17 @@ class DateRangeFieldTest extends DateTestBase {
     $date_format = DateFormat::load('html_date')->getPattern();
     $time_format = DateFormat::load('html_time')->getPattern();
 
-    $edit = array(
+    $edit = [
       "{$field_name}[0][value][date]" => $start_date->format($date_format),
       "{$field_name}[0][value][time]" => $start_date->format($time_format),
       "{$field_name}[0][end_value][date]" => $start_date->format($date_format),
       "{$field_name}[0][end_value][time]" => $start_date->format($time_format),
-    );
+    ];
 
     $this->drupalPostForm(NULL, $edit, t('Save'));
     preg_match('|entity_test/manage/(\d+)|', $this->url, $match);
     $id = $match[1];
-    $this->assertText(t('entity_test @id has been created.', array('@id' => $id)));
+    $this->assertText(t('entity_test @id has been created.', ['@id' => $id]));
 
     $this->displayOptions = [
       'type' => 'daterange_default',
@@ -387,7 +403,7 @@ class DateRangeFieldTest extends DateTestBase {
       ->save();
     $expected = $start_date->format(DATETIME_DATETIME_STORAGE_FORMAT);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', ['%expected' => $expected]));
     $this->assertNoText(' THESEPARATOR ', 'Separator not found on page');
 
     $this->displayOptions['type'] = 'daterange_custom';
@@ -397,7 +413,7 @@ class DateRangeFieldTest extends DateTestBase {
       ->save();
     $expected = $start_date->format($this->displayOptions['settings']['date_format']);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
     $this->assertNoText(' THESEPARATOR ', 'Separator not found on page');
   }
 
@@ -415,9 +431,12 @@ class DateRangeFieldTest extends DateTestBase {
     $this->drupalGet('entity_test/add');
     $this->assertFieldByName("{$field_name}[0][value][date]", '', 'Start date element found.');
     $this->assertFieldByName("{$field_name}[0][end_value][date]", '', 'End date element found.');
-    $this->assertFieldByXPath('//*[@id="edit-' . $field_name . '-wrapper"]/h4[contains(@class, "js-form-required")]', TRUE, 'Required markup found');
+    $this->assertFieldByXPath('//*[@id="edit-' . $field_name . '-wrapper"]//label[contains(@class, "js-form-required")]', TRUE, 'Required markup found');
     $this->assertNoFieldByName("{$field_name}[0][value][time]", '', 'Start time element not found.');
     $this->assertNoFieldByName("{$field_name}[0][end_value][time]", '', 'End time element not found.');
+    $this->assertFieldByXPath('//fieldset[@id="edit-' . $field_name . '-0"]/legend//text()', $field_name, 'Fieldset and label found');
+    $this->assertFieldByXPath('//fieldset[@aria-describedby="edit-' . $field_name . '-0--description"]', NULL, 'ARIA described-by found');
+    $this->assertFieldByXPath('//div[@id="edit-' . $field_name . '-0--description"]', NULL, 'ARIA description found');
 
     // Build up dates in the proper timezone.
     $value = '2012-12-31 00:00:00';
@@ -429,14 +448,14 @@ class DateRangeFieldTest extends DateTestBase {
     $date_format = DateFormat::load('html_date')->getPattern();
     $time_format = DateFormat::load('html_time')->getPattern();
 
-    $edit = array(
+    $edit = [
       "{$field_name}[0][value][date]" => $start_date->format($date_format),
       "{$field_name}[0][end_value][date]" => $end_date->format($date_format),
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
     preg_match('|entity_test/manage/(\d+)|', $this->url, $match);
     $id = $match[1];
-    $this->assertText(t('entity_test @id has been created.', array('@id' => $id)));
+    $this->assertText(t('entity_test @id has been created.', ['@id' => $id]));
     $this->assertRaw($start_date->format($date_format));
     $this->assertNoRaw($start_date->format($time_format));
     $this->assertRaw($end_date->format($date_format));
@@ -473,17 +492,17 @@ class DateRangeFieldTest extends DateTestBase {
       ->save();
     $expected = $start_date->format(DATETIME_DATETIME_STORAGE_FORMAT) . ' - ' . $end_date->format(DATETIME_DATETIME_STORAGE_FORMAT);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', ['%expected' => $expected]));
 
     // Verify that the custom formatter works.
     $this->displayOptions['type'] = 'daterange_custom';
-    $this->displayOptions['settings'] = array('date_format' => 'm/d/Y') + $this->defaultSettings;
+    $this->displayOptions['settings'] = ['date_format' => 'm/d/Y'] + $this->defaultSettings;
     entity_get_display($this->field->getTargetEntityTypeId(), $this->field->getTargetBundle(), 'full')
       ->setComponent($field_name, $this->displayOptions)
       ->save();
     $expected = $start_date->format($this->displayOptions['settings']['date_format']) . ' - ' . $end_date->format($this->displayOptions['settings']['date_format']);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
 
     // Verify that the 'timezone_override' setting works.
     $this->displayOptions['type'] = 'daterange_custom';
@@ -494,7 +513,7 @@ class DateRangeFieldTest extends DateTestBase {
     $expected = $start_date->format($this->displayOptions['settings']['date_format'], ['timezone' => 'America/New_York']);
     $expected .= ' - ' . $end_date->format($this->displayOptions['settings']['date_format'], ['timezone' => 'America/New_York']);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
 
     // Test formatters when start date and end date are the same
     $this->drupalGet('entity_test/add');
@@ -507,14 +526,14 @@ class DateRangeFieldTest extends DateTestBase {
     $date_format = DateFormat::load('html_date')->getPattern();
     $time_format = DateFormat::load('html_time')->getPattern();
 
-    $edit = array(
+    $edit = [
       "{$field_name}[0][value][date]" => $start_date->format($date_format),
       "{$field_name}[0][end_value][date]" => $start_date->format($date_format),
-    );
+    ];
     $this->drupalPostForm(NULL, $edit, t('Save'));
     preg_match('|entity_test/manage/(\d+)|', $this->url, $match);
     $id = $match[1];
-    $this->assertText(t('entity_test @id has been created.', array('@id' => $id)));
+    $this->assertText(t('entity_test @id has been created.', ['@id' => $id]));
 
     $this->displayOptions = [
       'type' => 'daterange_default',
@@ -549,7 +568,7 @@ class DateRangeFieldTest extends DateTestBase {
       ->save();
     $expected = $start_date->format(DATETIME_DATETIME_STORAGE_FORMAT) . ' THESEPARATOR ' . $end_date->format(DATETIME_DATETIME_STORAGE_FORMAT);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using plain format displayed as %expected.', ['%expected' => $expected]));
     $this->assertText(' THESEPARATOR ', 'Found proper separator');
 
     $this->displayOptions['type'] = 'daterange_custom';
@@ -559,7 +578,7 @@ class DateRangeFieldTest extends DateTestBase {
       ->save();
     $expected = $start_date->format($this->displayOptions['settings']['date_format']) . ' THESEPARATOR ' . $end_date->format($this->displayOptions['settings']['date_format']);
     $this->renderTestEntity($id);
-    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', array('%expected' => $expected)));
+    $this->assertText($expected, new FormattableMarkup('Formatted date field using daterange_custom format displayed as %expected.', ['%expected' => $expected]));
     $this->assertText(' THESEPARATOR ', 'Found proper separator');
 
   }
@@ -587,6 +606,9 @@ class DateRangeFieldTest extends DateTestBase {
 
     // Display creation form.
     $this->drupalGet('entity_test/add');
+    $this->assertFieldByXPath('//fieldset[@id="edit-' . $field_name . '-0"]/legend//text()', $field_name, 'Fieldset and label found');
+    $this->assertFieldByXPath('//fieldset[@aria-describedby="edit-' . $field_name . '-0--description"]', NULL, 'ARIA described-by found');
+    $this->assertFieldByXPath('//div[@id="edit-' . $field_name . '-0--description"]', NULL, 'ARIA description found');
 
     // Assert that Hour and Minute Elements do not appear on Date Only.
     $this->assertNoFieldByXPath("//*[@id=\"edit-$field_name-0-value-hour\"]", NULL, 'Hour element not found on Date Only.');
