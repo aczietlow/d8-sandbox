@@ -1,0 +1,5 @@
+name: sandbox_entities
+type: module
+description: Sandbox for Drupal's new entity system
+core: 8.x
+package: sandbox

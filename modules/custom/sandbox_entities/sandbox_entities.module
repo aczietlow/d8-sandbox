@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains sandbox_entities.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function sandbox_entities_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the sandbox_entities module.
+    case 'help.page.sandbox_entities':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Sandbox for Drupal&#039;s new entity system') . '</p>';
+      return $output;
+
+    default:
+  }
+}
