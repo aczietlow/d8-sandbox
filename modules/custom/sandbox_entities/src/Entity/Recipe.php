@@ -209,6 +209,13 @@ class Recipe extends ContentEntityBase implements RecipeInterface {
       ->setLabel(t('Changed'))
       ->setDescription(t('The time that the entity was last edited.'));
 
+    $fields['cook_time'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Cook time'))
+      ->setDescription(t('How long does it take to cook?'))
+      ->setRequired(TRUE)
+      ->setTranslatable(TRUE)
+      ->setRevisionable(TRUE);
+
     return $fields;
   }
 
