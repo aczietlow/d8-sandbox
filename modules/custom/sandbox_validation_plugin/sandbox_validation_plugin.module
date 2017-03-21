@@ -35,6 +35,7 @@ function sandbox_validation_plugin_entity_base_field_info(EntityTypeInterface $e
     ->setLabel(t('Prep Time'))
     ->setDescription(t('How long does it take to prep food?'))
     ->setComputed(TRUE)
+    ->addConstraint('RecipePrepTime', [])
     ->setRequired(TRUE)
     ->setTranslatable(TRUE)
     ->setRevisionable(TRUE)
