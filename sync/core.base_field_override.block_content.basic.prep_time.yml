@@ -1,0 +1,20 @@
+uuid: bde5f5f5-4796-488e-badc-e7fda68bdb46
+langcode: en
+status: true
+dependencies:
+  config:
+    - block_content.type.basic
+id: block_content.basic.prep_time
+field_name: prep_time
+entity_type: block_content
+bundle: basic
+label: 'Prep Time'
+description: 'How long does it take to prep food?'
+required: true
+translatable: false
+default_value:
+  -
+    value: ''
+default_value_callback: ''
+settings: {  }
+field_type: string

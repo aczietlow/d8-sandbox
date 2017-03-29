@@ -1,0 +1,20 @@
+uuid: 7d42f4ca-7fb3-4ea7-bf63-6307784d788f
+langcode: en
+status: true
+dependencies:
+  config:
+    - comment.type.comment
+id: comment.comment.prep_time
+field_name: prep_time
+entity_type: comment
+bundle: comment
+label: 'Prep Time'
+description: 'How long does it take to prep food?'
+required: true
+translatable: false
+default_value:
+  -
+    value: ''
+default_value_callback: ''
+settings: {  }
+field_type: string

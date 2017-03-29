@@ -1,0 +1,20 @@
+uuid: 9df90c85-bd69-4d49-89a7-15df5878691c
+langcode: en
+status: true
+dependencies:
+  module:
+    - sandbox_entities
+id: recipe.recipe.user_id
+field_name: user_id
+entity_type: recipe
+bundle: recipe
+label: 'Authored by'
+description: 'The user ID of author of the Recipe entity.'
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: default
+  handler_settings: {  }
+field_type: entity_reference

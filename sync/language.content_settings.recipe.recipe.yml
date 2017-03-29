@@ -1,0 +1,15 @@
+uuid: eeec14d9-efa4-4f0c-b633-8c62065f65ab
+langcode: en
+status: true
+dependencies:
+  module:
+    - content_translation
+    - sandbox_entities
+third_party_settings:
+  content_translation:
+    enabled: false
+id: recipe.recipe
+target_entity_type_id: recipe
+target_bundle: recipe
+default_langcode: site_default
+language_alterable: false

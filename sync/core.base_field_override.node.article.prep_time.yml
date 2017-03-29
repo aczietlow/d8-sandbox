@@ -1,0 +1,20 @@
+uuid: df4c83c0-98ee-4219-a395-f3c1ca41d9b3
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.article
+id: node.article.prep_time
+field_name: prep_time
+entity_type: node
+bundle: article
+label: 'Prep Time'
+description: 'How long does it take to prep food?'
+required: true
+translatable: false
+default_value:
+  -
+    value: ''
+default_value_callback: ''
+settings: {  }
+field_type: string
