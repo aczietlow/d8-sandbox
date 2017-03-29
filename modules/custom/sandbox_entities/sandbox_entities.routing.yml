@@ -1,0 +1,8 @@
+
+sandbox_entities.debug_controller_DebugPage:
+  path: '/debug/stuff'
+  defaults:
+    _controller: '\Drupal\sandbox_entities\Controller\DebugController::DebugPage'
+    _title: 'DebugPage'
+  requirements:
+    _permission: 'access content'
