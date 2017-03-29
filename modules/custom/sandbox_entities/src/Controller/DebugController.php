@@ -43,6 +43,13 @@ class DebugController extends ControllerBase {
    *   Return Hello string.
    */
   public function DebugPage() {
+  $query = \Drupal::entityQuery('node');
+    $query->condition('status', 1);
+    $query->condition('type', 'page');
+    $entity_ids = $query->execute();
+
+
+    $foo = '';
     return [
       '#type' => 'markup',
       '#markup' => $this->t('Implement method: DebugPage')
