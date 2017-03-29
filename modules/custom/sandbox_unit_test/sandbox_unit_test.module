@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains sandbox_unit_test.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function sandbox_unit_test_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the sandbox_unit_test module.
+    case 'help.page.sandbox_unit_test':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Sandbox for testing Unit Tests') . '</p>';
+      return $output;
+
+    default:
+  }
+}

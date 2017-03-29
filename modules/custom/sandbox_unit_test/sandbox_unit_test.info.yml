@@ -1,0 +1,5 @@
+name: sandbox_unit_test
+type: module
+description: Sandbox for testing Unit Tests
+core: 8.x
+package: sandbox
