@@ -36,10 +36,10 @@ function sandbox_validation_plugin_entity_base_field_info(EntityTypeInterface $e
     ->setDescription(t('How long does it take to prep food?'))
     ->setComputed(TRUE)
     ->addConstraint('RecipePrepTime', [])
-    ->setRequired(TRUE)
+    ->setRequired(FALSE)
     ->setTranslatable(TRUE)
     ->setRevisionable(TRUE)
-    ->setDefaultValue('')
+    ->setDefaultValue('1')
     ->setDisplayOptions('view', array(
       'label' => 'above',
       'type' => 'string',
@@ -53,4 +53,19 @@ function sandbox_validation_plugin_entity_base_field_info(EntityTypeInterface $e
     ->setDisplayConfigurable('view', TRUE);
 
   return $fields;
+}
+
+/**
+ * Implements hook_entity_base_field_info_alter().
+ */
+function sandbox_validation_plugin_entity_base_field_info_alter(&$fields, EntityTypeInterface $entity_type) {
+  if ($entity_type->id() == 'node') {
+
+    /** @var \Drupal\Core\Field\BaseFieldDefinition $fields['moderation_state'] */
+    $mod_field = $fields['moderation_state'];
+    $mod_field->addConstraint('SandboxModerationState', []);
+    $fields['moderation_state'] = $mod_field;
+
+  }
+
 }
