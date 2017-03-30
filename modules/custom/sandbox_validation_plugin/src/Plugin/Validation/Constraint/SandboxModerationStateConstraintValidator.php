@@ -87,6 +87,7 @@ class SandboxModerationStateConstraintValidator extends ConstraintValidator impl
     if (!$entity->isNew() && !$this->isFirstTimeModeration($entity)) {
 
       $original_entity = $this->moderationInformation->getLatestRevision($entity->getEntityTypeId(), $entity->id());
+      $revisionId = $this->moderationInformation->getLatestRevisionId($entity->getEntityTypeId(), $entity->id());
       if (!$entity->isDefaultTranslation() && $original_entity->hasTranslation($entity->language()->getId())) {
         $original_entity = $original_entity->getTranslation($entity->language()->getId());
       }
